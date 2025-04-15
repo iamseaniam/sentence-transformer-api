@@ -6,12 +6,10 @@ from huggingface_hub import login
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 import psycopg2
-from dotenv import load_dotenv
-
 
 # loading env varibles
 login(os.getenv("HF_TOKEN"))
-load_dotenv()
+
 
 app = FastAPI()
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
