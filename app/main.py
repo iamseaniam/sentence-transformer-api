@@ -6,15 +6,21 @@ from huggingface_hub import login
 from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 import psycopg2
+from dotenv import load_dotenv
 
-# loading env varibles
-login(os.getenv("HF_TOKEN"))
-
+load_dotenv()
 
 app = FastAPI()
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+try:
+    hf_token = os.getenv("HF_TOKEN")
+    if not hf_token:
+        raise ValueError("HF_TOKEN enviroment variable not found/set")
 
-# the helper functions
+    login(hf_token)
+    model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+except Exception as e:
+    print(f"Error during startup: {e}")
+    model = None
 
 
 def pull_tags(text):
