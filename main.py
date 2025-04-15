@@ -63,6 +63,10 @@ def generate_weighted_embeddings(text, goods):
 
 
 # API route
+@app.get("/")
+def read_root():
+    return {"messgae": "Sentence Transformer API is up and running!\n I wonder if anyone will see this message. i am so sneaky"}
+
 
 @app.post("/api/embed")
 def update_post_embeddings():
