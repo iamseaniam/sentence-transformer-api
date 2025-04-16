@@ -56,7 +56,7 @@ def preprocess_tags(tags):
 def generate_weighted_embeddings(post):
     print(f"generating embeddings for post id {post['id']}")
 
-    tags = pull_tags(post['tSext'])
+    tags = pull_tags(post['text'])
     tags = preprocess_tags(tags)
     print(f"tags pulled: {tags}")
 
