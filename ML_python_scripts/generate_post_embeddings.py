@@ -21,6 +21,7 @@ from huggingface_hub import login
 import os
 from dotenv.main import load_dotenv
 from fastapi import APIRouter
+from sklearn.decomposition import PCA
 load_dotenv()
 
 router = APIRouter()
@@ -78,7 +79,9 @@ def generate_weighted_embeddings(post):
         # more vibes based hyperparameter tuning
     ])
 
-    return combined
+    pca = PCA(n_components=384)
+    reduced_embedding = pca.fit_transform(combined.reshape(1, -1))
+    return reduced_embedding
 
 
 @router.get("/api/py/embed")
