@@ -113,7 +113,7 @@ def update_post_embeddings():
 
     update_count = 0
 
-    print(f"Embedding dimensions: {embedding.shape}")
+    # print(f"Embedding dimensions: {embedding.shape}")
 
     for post in posts:
         print(f"Data Type: {type(post)}")
