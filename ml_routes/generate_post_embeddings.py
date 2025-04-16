@@ -1,29 +1,14 @@
 #!/usr/bin/env python3
 
-# I have no idea what a postgres implimentation looks like
-# So I don't know if we need a shebang
-# Anyway here's some imports
-
-# import psycopg2.pool
 from sentence_transformers import SentenceTransformer
-# import json
-
-# I imagine that since this'll be running on cody's machine
-# I won't need to have this downloaded.
-# Jury's out though
-#   I am in fact downloading this as I am testing it on my own machine
-#   Also, past Ace, it wasn't that big of a deal.
-#   Don't be a baby next time
 import psycopg2
 import re
 import numpy as np
-# We'll also need to pull the env variable
-# So I'm importing OS for now
 import os
 from dotenv.main import load_dotenv
-from fastapi import FastAPI
+from fastapi import APIRouter
 
-app = FastAPI()
+router = APIRouter()
 
 model = SentenceTransformer('paraphrase-albert-small-v2')
 load_dotenv()
@@ -80,18 +65,11 @@ def generate_weighted_embeddings(post):
     return combined
 
 
-@app.get("/api/py/embed")
-# Do I need these if the API calls happen somewhere else???
-# Is it that easy???????
+@router.post("/api/py/embed")
 def update_post_embeddings():
-    # This will need some error handling but for now I think it's ok
     post_query = """SELECT posts.id, text, goods.name as goods
                     FROM posts JOIN goods on goods.id = posts.good_id
                     WHERE embedding IS NULL;"""
-    # limit might be needed but unsure how will loop it just yet
-    # Will limit things when able
-
-    # stuff for connecting to the database here
 
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
 
@@ -124,17 +102,11 @@ def update_post_embeddings():
 
         embedding = generate_weighted_embeddings(post_dict)
 
-        # Maybe do some truncating here
-        # Some PCA, you know?
-        # SVD is what David says
-
         cursor.execute("""
             UPDATE posts
             SET embedding = %s
             WHERE id = %s;
         """, (embedding.tolist(), post_dict["id"]))
-        # Not sure if it needs to be tolist()
-        # Since the datatype is a vector.
 
         update_count += 1
 

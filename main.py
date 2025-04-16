@@ -7,10 +7,13 @@ from pydantic import BaseModel
 from sentence_transformers import SentenceTransformer
 import psycopg2
 from dotenv import load_dotenv
+from ml_routes import generate_post_embeddings, index
 
 load_dotenv()
 
 app = FastAPI()
+
+
 try:
     hf_token = os.getenv("HF_TOKEN")
     if not hf_token:
@@ -21,6 +24,10 @@ try:
 except Exception as e:
     print(f"Error during startup: {e}")
     model = None
+
+# Hooking up the routes, spicy...
+app.include_router(generate_post_embeddings.router)
+app.include_router(index.router)
 
 
 def pull_tags(text):
@@ -100,8 +107,3 @@ def update_post_embeddings():
     conn.close()
 
     return {"message": f"{update_count} posts updated successfully"}
-
-
-@app.get("/api/py/helloFastApi")
-def hello_fast_api():
-    return {"message": "Hello from FastAPI!"}

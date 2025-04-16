@@ -1,8 +1,8 @@
 # API we're working with
-from fastapi import FastAPI
+from fastapi import APIRouter
 
 # imports for generating embeddings
-from generate_post_embeddings import update_post_embeddings
+from ml_routes.generate_post_embeddings import update_post_embeddings
 from fetch_recommendations_V2 import test_jsonify
 
 # imports for fetching the recommended posts
@@ -10,10 +10,10 @@ from fetch_recommendations_V2 import test_jsonify
 # from typing import List
 
 # setting up the app.
-app = FastAPI()
+router = APIRouter()
 
 
-@app.get("/api/py/helloFastApi")
+@router.post("/api/py/helloFastApi")
 def hello_fast_api():
     return {"message": "Hello from FastAPI!"}
 
@@ -22,7 +22,7 @@ def hello_fast_api():
 #   Now's not the time to make jokes about that.
 
 
-@app.get("/api/py/embed")
+@router.post("/api/py/embed")
 def update_embeddings():
     update_post_embeddings()
     return {"message": "Congrats! The call made it through!"}
@@ -36,7 +36,7 @@ def update_embeddings():
     # return recommended_posts
 
 # Still no idea what I'm doing but we're gonna give it our best.
-@app.get("/api/py/test_json")
+@router.post("/api/py/test_json")
 def testing_json():
     test_results = test_jsonify()
     return test_results
