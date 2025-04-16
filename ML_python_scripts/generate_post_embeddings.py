@@ -17,16 +17,24 @@ from sentence_transformers import SentenceTransformer
 import psycopg2
 import re
 import numpy as np
-# We'll also need to pull the env variable
-# So I'm importing OS for now
+from huggingface_hub import login
 import os
 from dotenv.main import load_dotenv
 from fastapi import APIRouter
+load_dotenv()
 
 router = APIRouter()
 
-model = SentenceTransformer('paraphrase-albert-small-v2')
-load_dotenv()
+try:
+    hf_token = os.getenv("HF_TOKEN")
+    if not hf_token:
+        raise ValueError("HF_TOKEN enviroment varible not found/set")
+
+    login(hf_token)
+    model = SentenceTransformer('paraphrase-albert-small-v2')
+except Exception as e:
+    print(f"Error during startup: {e}")
+    model = None
 
 
 def pull_tags(text):

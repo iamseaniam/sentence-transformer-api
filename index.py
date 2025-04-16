@@ -5,8 +5,9 @@ from fastapi import FastAPI
 from ML_python_scripts.generate_post_embeddings import update_post_embeddings
 from ML_python_scripts.fetch_recommendations_V2 import test_jsonify, get_recommendations, PostRecommendation
 from typing import List
+from dotenv import load_dotenv
 
-
+load_dotenv()
 # setting up the app.
 app = FastAPI()
 
