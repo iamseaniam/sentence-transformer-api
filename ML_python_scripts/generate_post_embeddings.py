@@ -25,16 +25,9 @@ load_dotenv()
 
 router = APIRouter()
 
-try:
-    hf_token = os.getenv("HF_TOKEN")
-    if not hf_token:
-        raise ValueError("HF_TOKEN enviroment varible not found/set")
+os.getenv("HF_TOKEN")
 
-    login(hf_token)
-    model = SentenceTransformer('paraphrase-albert-small-v2')
-except Exception as e:
-    print(f"Error during startup: {e}")
-    model = None
+model = SentenceTransformer('paraphrase-albert-small-v2')
 
 
 def pull_tags(text):
@@ -116,6 +109,8 @@ def update_post_embeddings():
         return
 
     update_count = 0
+
+    print(f"Embedding dimensions: {embedding.shape}")
 
     for post in posts:
         print(f"Data Type: {type(post)}")
