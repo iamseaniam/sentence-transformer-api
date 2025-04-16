@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 # imports for generating embeddings
 from ml_routes.generate_post_embeddings import update_post_embeddings
-from fetch_recommendations_V2 import test_jsonify
+from ml_routes.fetch_recommendations_V2 import test_jsonify
 
 # imports for fetching the recommended posts
 # from ML_python_scripts.fetch_recommendations_V2 import get_recommendations, UserProfile, PostRecommendation
