@@ -100,3 +100,8 @@ def update_post_embeddings():
     conn.close()
 
     return {"message": f"{update_count} posts updated successfully"}
+
+
+@app.get("/api/py/helloFastApi")
+def hello_fast_api():
+    return {"message": "Hello from FastAPI!"}

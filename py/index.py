@@ -2,8 +2,8 @@
 from fastapi import FastAPI
 
 # imports for generating embeddings
-from ML_python_scripts.generate_post_embeddings import update_post_embeddings
-from ML_python_scripts.fetch_recommendations_V2 import test_jsonify
+from generate_post_embeddings import update_post_embeddings
+from fetch_recommendations_V2 import test_jsonify
 
 # imports for fetching the recommended posts
 # from ML_python_scripts.fetch_recommendations_V2 import get_recommendations, UserProfile, PostRecommendation
@@ -12,6 +12,7 @@ from ML_python_scripts.fetch_recommendations_V2 import test_jsonify
 # setting up the app.
 app = FastAPI()
 
+
 @app.get("/api/py/helloFastApi")
 def hello_fast_api():
     return {"message": "Hello from FastAPI!"}
@@ -19,6 +20,8 @@ def hello_fast_api():
 # Surely the generating embeddings shouldn't be that hard, right?
 # What's the worst that could happen, I screw up the database?
 #   Now's not the time to make jokes about that.
+
+
 @app.get("/api/py/embed")
 def update_embeddings():
     update_post_embeddings()
