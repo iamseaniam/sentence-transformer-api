@@ -83,7 +83,10 @@ def generate_weighted_embeddings(post):
     ])
 
     print(f"Combined embedding shape: {combined.shape}")
-    return combined
+    if len(combined) != 1920:
+        return None
+    else:
+        return combined
 
 
 @router.get("/api/py/embed")
