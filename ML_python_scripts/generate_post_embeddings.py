@@ -67,18 +67,22 @@ def generate_weighted_embeddings(post):
     print(f"goods pulled: {goods}")
 
     tag_embedding = model.encode(" ".join(tags)) if tags else np.zeros(384)
-    goods_embedding = model.encode(goods) * 2
+    goods_embedding = model.encode(str(post['goods'])) * 2
     # *2 so we put more weight on the goods that the user wants
     # This can be changed later, hyperparameter tuning is vibes based
     text_embedding = model.encode(text) if text else np.zeros(384)
+
+    print(f"Tag embedding shape: {tag_embedding.shape}")
+    print(f"Goods embedding shape: {goods_embedding.shape}")
+    print(f"Text embedding shape: {text_embedding.shape}")
 
     combined = np.concatenate([
         tag_embedding,
         goods_embedding,
         text_embedding * 0.3
-        # more vibes based hyperparameter tuning
     ])
 
+    print(f"Combined embedding shape: {combined.shape}")
     return combined
 
 
