@@ -135,6 +135,9 @@ def update_post_embeddings():
 
         embedding = generate_weighted_embeddings(post_dict)
 
+        if embedding is None:
+            print(f"Post {post_dict['id']} has an invalid embedding.")
+            continue
         # Maybe do some truncating here
         # Some PCA, you know?
         # SVD is what David says
