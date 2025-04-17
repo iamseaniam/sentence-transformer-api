@@ -13,7 +13,7 @@ model = SentenceTransformer('paraphrase-albert-small-v2')
 # Mock data generator
 
 
-def generate_mock_posts(num_posts=100):
+def generate_mock_posts(num_posts=20):
     goods = ["Laptop", "Textbook", "Coffee", "Bike", "Phone"]
     tags = ["#NeedHelp", "#Urgent", "#StudyGroup", "#ForSale", "#Wanted"]
     mock_posts = []
@@ -96,8 +96,7 @@ def test_pca_workflow():
     print(f"Original embedding shape: {embeddings.shape}")
 
     # Apply PCA
-    n_components = min(20, embeddings.shape[1])  # Ensure n_components is valid
-    pca = PCA(n_components=n_components)
+    pca = PCA(n_components=384)
     reduced = pca.fit_transform(embeddings)
     np.save(test_dir/"pca_reduced.npy", reduced)
 

@@ -86,47 +86,65 @@ def generate_weighted_embeddings(post):
 # Do I need these if the API calls happen somewhere else???
 # Is it that easy???????
 def update_post_embeddings():
+    # This will need some error handling but for now I think it's ok
+    post_query = """SELECT posts.id, text, goods.name as goods
+                    FROM posts JOIN goods on goods.id = posts.good_id
+                    WHERE embedding IS NULL;"""
+    # limit might be needed but unsure how will loop it just yet
+    # Will limit things when able
+
+    # stuff for connecting to the database here
+
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
+
+    print("Data Connection Info:")
+    print(os.getenv("DATABASE_URL"))
+
     cursor = conn.cursor()
 
-    cursor.execute("""
-        SELECT posts.id, text, goods.name
-        FROM posts JOIN goods on goods.id = posts.good_id
-        WHERE embedding IS NULL;
-    """)
+    cursor.execute(post_query)
     posts = cursor.fetchall()
 
     if not posts:
-        print("No new posts to update.")
+        print("All posts have embeddings")
         return
 
-    embeddings = []
-    ids = []
+    update_count = 0
+
+    # print(f"Embedding dimensions: {embedding.shape}")
 
     for post in posts:
+        print(f"Data Type: {type(post)}")
+        print(f"Post info: {post}")
+        post = list(post)
+        print(f"List Data Type: {type(post)}")
+        print(f"List Post info: {post}")
+
         post_dict = {
             "id": post[0],
             "text": post[1],
             "goods": post[2]
         }
-        emb = generate_weighted_embeddings(post_dict)
-        embeddings.append(emb)
-        ids.append(post_dict["id"])
 
-    embeddings = np.array(embeddings)
+        embedding = generate_weighted_embeddings(post_dict)
 
-    # Apply PCA once to all embeddings
-    pca = PCA(n_components=384)
-    reduced = pca.fit_transform(embeddings)
+        # Maybe do some truncating here
+        # Some PCA, you know?
+        # SVD is what David says
 
-    for emb, post_id in zip(reduced, ids):
         cursor.execute("""
-            UPDATE posts SET embedding = %s WHERE id = %s;
-        """, (emb.tolist(), post_id))
+            UPDATE posts
+            SET embedding = %s
+            WHERE id = %s;
+        """, (embedding.tolist(), post_dict["id"]))
+        # Not sure if it needs to be tolist()
+        # Since the datatype is a vector.
+
+        update_count += 1
 
     conn.commit()
     conn.close()
-    print(f"{len(ids)} posts updated with embeddings.")
+    print(f"{update_count} posts updated succesfully.")
 
 
 if __name__ == "__main__":
