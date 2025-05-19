@@ -68,8 +68,6 @@ def generate_weighted_embeddings(post):
 
     tag_embedding = model.encode(" ".join(tags)) if tags else np.zeros(384)
     goods_embedding = model.encode(str(post['goods'])) * 2
-    # *2 so we put more weight on the goods that the user wants
-    # This can be changed later, hyperparameter tuning is vibes based
     text_embedding = model.encode(text) if text else np.zeros(384)
 
     print(f"Tag embedding shape: {tag_embedding.shape}")
@@ -90,23 +88,12 @@ def generate_weighted_embeddings(post):
 
 
 @router.get("/api/py/embed")
-# Do I need these if the API calls happen somewhere else???
-# Is it that easy???????
 def update_post_embeddings():
-    # This will need some error handling but for now I think it's ok
     post_query = """SELECT posts.id, text, goods.name as goods
                     FROM posts JOIN goods on goods.id = posts.good_id
                     WHERE embedding IS NULL;"""
-    # limit might be needed but unsure how will loop it just yet
-    # Will limit things when able
-
-    # stuff for connecting to the database here
 
     conn = psycopg2.connect(os.getenv("DATABASE_URL"))
-
-    print("Data Connection Info:")
-    print(os.getenv("DATABASE_URL"))
-
     cursor = conn.cursor()
 
     cursor.execute(post_query)
@@ -116,17 +103,10 @@ def update_post_embeddings():
         print("All posts have embeddings")
         return
 
-    update_count = 0
-
-    # print(f"Embedding dimensions: {embedding.shape}")
+    post_ids = []
+    raw_embeddings = []
 
     for post in posts:
-        print(f"Data Type: {type(post)}")
-        print(f"Post info: {post}")
-        post = list(post)
-        print(f"List Data Type: {type(post)}")
-        print(f"List Post info: {post}")
-
         post_dict = {
             "id": post[0],
             "text": post[1],
@@ -134,27 +114,28 @@ def update_post_embeddings():
         }
 
         embedding = generate_weighted_embeddings(post_dict)
-
         if embedding is None:
             print(f"Post {post_dict['id']} has an invalid embedding.")
             continue
-        # Maybe do some truncating here
-        # Some PCA, you know?
-        # SVD is what David says
 
+        raw_embeddings.append(embedding)
+        post_ids.append(post_dict["id"])
+
+    print("Fitting PCA on collected embeddings...")
+    pca = PCA(n_components=512)
+    reduced_embeddings = pca.fit_transform(raw_embeddings)
+
+    print("Updating database with PCA-reduced embeddings...")
+    for i, reduced in enumerate(reduced_embeddings):
         cursor.execute("""
             UPDATE posts
             SET embedding = %s
             WHERE id = %s;
-        """, (embedding.tolist(), post_dict["id"]))
-        # Not sure if it needs to be tolist()
-        # Since the datatype is a vector.
-
-        update_count += 1
+        """, (reduced.tolist(), post_ids[i]))
 
     conn.commit()
     conn.close()
-    print(f"{update_count} posts updated succesfully.")
+    print(f"{len(reduced_embeddings)} posts updated successfully with PCA-reduced embeddings.")
 
 
 if __name__ == "__main__":
